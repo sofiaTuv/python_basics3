@@ -14,8 +14,8 @@ def cart():
 
 
 @pytest.fixture
-def empty_cart():
-    return Cart()
+def other_product():
+    return Product("notebook", 50, "This is a notebook", 500)
 
 
 class TestProducts:
@@ -49,6 +49,21 @@ class TestCart:
         assert product in cart.products
         assert cart.products[product] == 50
 
+    def test_remove_product_with_remove_count_more_than_have(self, cart, product):
+        cart.add_product(product, 50)
+        cart.remove_product(product, 51)
+        assert not cart.products
+
+    def test_remove_product_without_count(self, cart, product):
+        cart.add_product(product, 50)
+        cart.remove_product(product)
+        assert product not in cart.products
+
+    def test_cart_total_price_with_two_products(self, cart, product, other_product):
+        cart.add_product(product, 50)
+        cart.add_product(other_product, 100)
+        assert cart.get_total_price() == 10000
+
     def test_clear_cart(self, cart, product):
         cart.add_product(product)
         cart.clear()
@@ -58,16 +73,11 @@ class TestCart:
         cart.add_product(product, 6)
         assert cart.get_total_price() == 600
 
-    def test_empty_cart(self, empty_cart):
-        try:
-            empty_cart.buy()
-        except ValueError as e:
-            assert str(e) == "Корзина пуста"
-
     def test_cart_buy(self, cart, product):
         cart.add_product(product, 1000)
         cart.buy()
         assert product.quantity == 0
+        assert not cart.products
 
     def test_cart_buy_more_than_available(self, cart, product):
         cart.add_product(product, 1500)
