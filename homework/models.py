@@ -40,6 +40,8 @@ class Cart:
         if product in self.products or remove_count >= self.products[product]:
             if remove_count is None:
                 del self.products[product]
+            elif len(self.products) <= remove_count:
+                self.products.clear()
             else:
                 self.products[product] -= remove_count
 
@@ -53,11 +55,9 @@ class Cart:
         return total_price
 
     def buy(self):
-        if any(not product.check_quantity(quantity)
-               for product, quantity in self.products.items()):
-            raise ValueError('Недостаточно товаров')
-
         for product, quantity in self.products.items():
-            product.buy(quantity)
-
+             if not product.check_quantity(quantity):
+                raise ValueError('Недостаточно товаров')
+             else:
+                product.buy(quantity)
         self.clear()
